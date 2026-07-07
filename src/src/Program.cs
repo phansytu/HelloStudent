@@ -1,38 +1,50 @@
-﻿namespace src
+﻿using System;
+using System.Text;
+
+namespace src
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.InputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine("Nhập số lượng sinh viên: ");
-            int n = int.Parse(Console.ReadLine());
-            StudentManager studentManager = new StudentManager();
-            bool run = true;
-            while (run)
+            Console.OutputEncoding = Encoding.UTF8; // Đảm bảo hiển thị tiếng Việt Console
+            Console.InputEncoding = Encoding.UTF8;
+
+            MonHocManager mhManager = new MonHocManager();
+            StudentManager svManager = new StudentManager(mhManager);
+
+            // Dữ liệu mẫu nạp sẵn để bạn dễ test đỡ phải nhập lại nhiều lần
+            mhManager.DanhSachMonHocGoc.Add(new MonHoc("Toan Cao Cap", 3));
+            mhManager.DanhSachMonHocGoc.Add(new MonHoc("Triet Hoc", 2));
+
+            while (true)
             {
-                if (n == 0)
-                {
-                    Console.WriteLine("Không có sinh viên nào để nhập thông tin.");
-                    run = false;
+                Console.WriteLine("\n================ QUẢN LÝ SINH VIÊN ================");
+                Console.WriteLine("1. Thêm môn học mới của trường");
+                Console.WriteLine("2. Thêm sinh viên mới");
+                Console.WriteLine("3. Đăng ký môn & Nhập điểm cho sinh viên");
+                Console.WriteLine("4. Hiển thị danh sách sinh viên & ĐTB");
+                Console.WriteLine("5. Tìm kiếm sinh viên theo Mã");
+                Console.WriteLine("6. Sửa thông tin sinh viên");
+                Console.WriteLine("7. Xóa sinh viên");
+                Console.WriteLine("0. Thoát chương trình");
+                Console.Write("Chọn chức năng (0-7): ");
 
-                }
-                else
+                string chon = Console.ReadLine() ?? "";
+                switch (chon)
                 {
-
-                    for (int i = 0; i < n; i++)
-                    {
-                        Console.WriteLine($"Nhập thông tin sinh viên thứ {i + 1}:");
-                        studentManager.NhapSinhVien();
-                    }
-                    
-                    studentManager.HienThiThongTin();
-                    run = false;
+                    case "1": mhManager.NhapMonHoc(); break;
+                    case "2": svManager.NhapSinhVien(); break;
+                    case "3": svManager.NhapDiemChoSinhVien(); break;
+                    case "4": svManager.HienThiThongTin(); break;
+                    case "5": svManager.TimKiemSinhVien(); break;
+                    case "6": svManager.SuaSinhVien(); break;
+                    case "7": svManager.XoaSinhVien(); break;
+                    case "0": return;
+                    default: Console.WriteLine("Chức năng không hợp lệ, vui lòng chọn lại!"); break;
                 }
                 Console.ReadKey();
-
-            }
+           }
         }
     }
 }
