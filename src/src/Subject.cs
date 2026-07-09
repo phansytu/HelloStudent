@@ -4,8 +4,9 @@ using System.Linq;
 
 namespace src
 {
-    public class MonHoc
+    public class Subject
     {
+        public string MaMonHoc { get; set; } // Mã môn học duy nhất
         public string TenMon { get; set; }
         public int SoTinChi { get; set; } // Thay thế cho HeSo cũ
 
@@ -19,8 +20,9 @@ namespace src
         public const double TrongSoChuyenCan = 3; // Hệ 3 tương đương trọng số/hệ số 3
         public const double TrongSoThi = 3;       // Hệ 3 tương đương trọng số/hệ số 3
 
-        public MonHoc(string tenMon, int soTinChi)
+        public Subject(string maMonHoc, string tenMon, int soTinChi)
         {
+            MaMonHoc = maMonHoc;
             TenMon = tenMon;
             SoTinChi = soTinChi;
         }

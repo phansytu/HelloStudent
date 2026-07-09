@@ -5,13 +5,14 @@ namespace src
 {
     public class StudentManager
     {
-        // Thêm khởi tạo mặc định để danh sách không bao giờ null
-        private List<Student> students { get; set; } = new List<Student>();
-        private MonHocManager _monHocManager;
+        //Sử dụng interface IStudentService để quản lý danh sách sinh viên
+        private IStudentService _studentService;
+        private ISubjectService _subjectService;
 
-        public StudentManager(MonHocManager monHocManager)
+        public StudentManager(IStudentService studentService, ISubjectService subjectService)
         {
-            _monHocManager = monHocManager;
+            _studentService = studentService;
+            _subjectService = subjectService;
         }
 
         // 1. THÊM SINH VIÊN
@@ -29,8 +30,8 @@ namespace src
                     continue;
                 }
 
-                // Dùng dấu ? để đảm bảo s không null khi so sánh (Fix Warning dòng 24)
-                if (students.Exists(s => s != null && s.maSV != null && s.maSV.Equals(maSV, StringComparison.OrdinalIgnoreCase)))
+        
+                if (_studentService.IsStudentExists(maSV))
                 {
                     Console.WriteLine("Mã sinh viên đã tồn tại. Vui lòng nhập lại.");
                 }
@@ -51,7 +52,7 @@ namespace src
                 Console.WriteLine("Tuổi phải là số nguyên dương hợp lệ!");
             }
 
-            students.Add(new Student(maSV, hoTen, tuoi));
+            _studentService.AddStudent(new Student(maSV, hoTen, tuoi));
             Console.WriteLine("Thêm sinh viên thành công!");
         }
 
@@ -59,12 +60,12 @@ namespace src
         public void NhapDiemChoSinhVien()
         {
             Console.WriteLine("\n--- NHẬP ĐIỂM MÔN HỌC CHO SINH VIÊN ---");
-            if (students.Count == 0)
+            if (_studentService.GetAllStudents().Count == 0)
             {
                 Console.WriteLine("Chưa có sinh viên nào trong hệ thống.");
                 return;
             }
-            if (_monHocManager?.DanhSachMonHocGoc == null || _monHocManager.DanhSachMonHocGoc.Count == 0)
+            if (_subjectService?.GetAllSubjects() == null || _subjectService.GetAllSubjects().Count == 0)
             {
                 Console.WriteLine("Trường chưa cấu hình môn học nào. Hãy thêm môn học trước!");
                 return;
@@ -74,7 +75,7 @@ namespace src
             string maSV = Console.ReadLine()?.Trim() ?? "";
 
             // Dùng kiểm tra an toàn trong lambda (Fix Warning dòng 41)
-            Student? sv = students.Find(s => s != null && s.maSV != null && s.maSV.Equals(maSV, StringComparison.OrdinalIgnoreCase));
+            Student? sv = _studentService.FindByMaSV(maSV);
 
             if (sv == null)
             {
@@ -82,11 +83,11 @@ namespace src
                 return;
             }
 
-            _monHocManager.HienThiDanhSachMon();
+            _subjectService.GetAllSubjects();
             Console.Write("Nhập tên môn học muốn đăng ký điểm: ");
             string tenMon = Console.ReadLine()?.Trim() ?? "";
 
-            MonHoc? monGoc = _monHocManager.DanhSachMonHocGoc.Find(m => m != null && m.TenMon != null && m.TenMon.Equals(tenMon, StringComparison.OrdinalIgnoreCase));
+            Subject? monGoc = _subjectService.FindByTenMon(tenMon);
             if (monGoc == null)
             {
                 Console.WriteLine("Môn học này không tồn tại trong hệ thống của trường!");
@@ -94,19 +95,19 @@ namespace src
             }
 
             // Đảm bảo danh sách môn học của sinh viên đã được khởi tạo
-            if (sv.danhSachMonHoc == null)
+            if (sv.DanhSachMonHoc == null)
             {
-                sv.danhSachMonHoc = new List<MonHoc>();
+                sv.DanhSachMonHoc = new List<Subject>();
             }
 
-            if (sv.danhSachMonHoc.Exists(m => m != null && m.TenMon != null && m.TenMon.Equals(monGoc.TenMon, StringComparison.OrdinalIgnoreCase)))
+            if (sv.DanhSachMonHoc.Exists(m => m != null && m.TenMon != null && m.TenMon.Equals(monGoc.TenMon, StringComparison.OrdinalIgnoreCase)))
             {
                 Console.WriteLine("Sinh viên này đã được nhập điểm môn này rồi! Hãy dùng tính năng Sửa nếu muốn thay đổi.");
                 return;
             }
 
             int soTinChi = monGoc.SoTinChi;
-            MonHoc monCuaSV = new MonHoc(monGoc.TenMon, soTinChi);
+            Subject monCuaSV = new Subject(monGoc.MaMonHoc, monGoc.TenMon, soTinChi);
 
             int soLuongHeSo1 = 1;
             int soLuongHeSo2 = 1;
@@ -138,9 +139,9 @@ namespace src
             monCuaSV.DiemChuyenCan = NhapDiemHopLe("Nhập điểm Chuyên Cần (Hệ số 3)");
             monCuaSV.DiemThi = NhapDiemHopLe("Nhập điểm Thi kết thúc học phần (Hệ số 3)");
 
-            sv.danhSachMonHoc.Add(monCuaSV);
+            sv.DanhSachMonHoc.Add(monCuaSV);
 
-            Console.WriteLine($"\nNhập điểm môn {monCuaSV.TenMon} cho sinh viên {sv.hoTen} thành công!");
+            Console.WriteLine($"\nNhập điểm môn {monCuaSV.TenMon} cho sinh viên {sv.HoTen} thành công!");
             Console.WriteLine($"-> Điểm tổng kết môn đạt: {Math.Round(monCuaSV.TinhDiemTongKetMon(), 2)}");
         }
 
@@ -162,18 +163,19 @@ namespace src
         public void HienThiThongTin()
         {
             Console.WriteLine("\n--- DANH SÁCH SINH VIÊN VÀ ĐIỂM TRUNG BÌNH ---");
-            if (students.Count == 0)
+            var danhSach = _studentService.GetAllStudents();
+            if (danhSach.Count == 0)
             {
                 Console.WriteLine("Danh sách trống.");
                 return;
             }
             Console.WriteLine($"| {"Mã SV",-10} | {"Họ và Tên",-25} | {"Tuổi",-5} | {"ĐTB Hệ Số",-10} |");
             Console.WriteLine(new string('-', 62));
-            foreach (var student in students)
+            foreach (var student in danhSach)
             {
                 if (student == null) continue;
                 double dtb = student.TinhDiemTrungBinh();
-                Console.WriteLine($"| {student.maSV,-10} | {student.hoTen,-25} | {student.tuoi,-5} | {Math.Round(dtb, 2),-10} |");
+                Console.WriteLine($"| {student.MaSV,-10} | {student.HoTen,-25} | {student.Tuoi,-5} | {Math.Round(dtb, 2),-10} |");
             }
         }
 
@@ -182,7 +184,7 @@ namespace src
         {
             Console.Write("\nNhập mã sinh viên cần tìm: ");
             string maSV = Console.ReadLine()?.Trim() ?? "";
-            Student? sv = students.Find(s => s != null && s.maSV != null && s.maSV.Equals(maSV, StringComparison.OrdinalIgnoreCase));
+            Student? sv = _studentService.FindByMaSV(maSV);
 
             if (sv == null)
             {
@@ -190,11 +192,11 @@ namespace src
                 return;
             }
 
-            Console.WriteLine($"[KẾT QUẢ] SV: {sv.hoTen} - Tuổi: {sv.tuoi} - ĐTB: {Math.Round(sv.TinhDiemTrungBinh(), 2)}");
-            if (sv.danhSachMonHoc == null) return;
+            Console.WriteLine($"[KẾT QUẢ] SV: {sv.HoTen} - Tuổi: {sv.Tuoi} - ĐTB: {Math.Round(sv.TinhDiemTrungBinh(), 2)}");
+            if (sv.DanhSachMonHoc == null) return;
 
             Console.WriteLine("Chi tiết các môn đã học:");
-            foreach (var m in sv.danhSachMonHoc)
+            foreach (var m in sv.DanhSachMonHoc)
             {
                 if (m == null) continue;
                 Console.WriteLine($"  + Môn: {m.TenMon} (Số tín chỉ: {m.SoTinChi}) => Tổng kết môn: {Math.Round(m.TinhDiemTongKetMon(), 2)} điểm");
@@ -206,7 +208,7 @@ namespace src
         {
             Console.Write("\nNhập mã sinh viên cần sửa: ");
             string maSV = Console.ReadLine()?.Trim() ?? "";
-            Student? sv = students.Find(s => s != null && s.maSV != null && s.maSV.Equals(maSV, StringComparison.OrdinalIgnoreCase));
+            Student? sv = _studentService.FindByMaSV(maSV);
 
             if (sv == null)
             {
@@ -214,15 +216,15 @@ namespace src
                 return;
             }
 
-            Console.Write($"Nhập họ tên mới (Để trống nếu giữ nguyên '{sv.hoTen}'): ");
+            Console.Write($"Nhập họ tên mới (Để trống nếu giữ nguyên '{sv.HoTen}'): ");
             string tenMoi = Console.ReadLine()?.Trim() ?? "";
-            if (!string.IsNullOrEmpty(tenMoi)) sv.hoTen = tenMoi;
+            if (!string.IsNullOrEmpty(tenMoi)) sv.HoTen = tenMoi;
 
-            Console.Write($"Nhập tuổi mới (Để trống nếu giữ nguyên '{sv.tuoi}'): ");
+            Console.Write($"Nhập tuổi mới (Để trống nếu giữ nguyên '{sv.Tuoi}'): ");
             string tuoiStr = Console.ReadLine()?.Trim() ?? "";
             if (!string.IsNullOrEmpty(tuoiStr))
             {
-                if (int.TryParse(tuoiStr, out int tuoiMoi) && tuoiMoi > 0) sv.tuoi = tuoiMoi;
+                if (int.TryParse(tuoiStr, out int tuoiMoi) && tuoiMoi > 0) sv.Tuoi = tuoiMoi;
                 else Console.WriteLine("Tuổi mới không hợp lệ, giữ nguyên tuổi cũ.");
             }
 
@@ -234,7 +236,7 @@ namespace src
         {
             Console.Write("\nNhập mã sinh viên cần xóa: ");
             string maSV = Console.ReadLine()?.Trim() ?? "";
-            Student? sv = students.Find(s => s != null && s.maSV != null && s.maSV.Equals(maSV, StringComparison.OrdinalIgnoreCase));
+            Student? sv = _studentService.FindByMaSV(maSV);
 
             if (sv == null)
             {
@@ -242,8 +244,8 @@ namespace src
                 return;
             }
 
-            students.Remove(sv);
-            Console.WriteLine($"Đã xóa thành công sinh viên {sv.hoTen} khỏi hệ thống.");
+            _studentService.DeleteStudent(maSV);
+            Console.WriteLine($"Đã xóa thành công sinh viên {sv.HoTen} khỏi hệ thống.");
         }
     }
 }
