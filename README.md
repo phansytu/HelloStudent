@@ -6,6 +6,8 @@
 ---
 
 ## Cấu Trúc Dự Án & Kiến Trúc Code
+
+```text
 src
 │
 ├── Student.cs              // Model sinh viên
@@ -18,7 +20,7 @@ src
 ├── SubjectService.cs       // Cài đặt nghiệp vụ quản lý môn học
 │
 └── Program.cs              // Điểm khởi chạy chương trình
-
+```
 ---
 
 ## Công Nghệ & Công Cụ Sử Dụng
