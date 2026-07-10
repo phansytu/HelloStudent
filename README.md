@@ -61,6 +61,12 @@ Chương trình cung cấp menu tương tác trực quan:
 5 Tìm kiếm sinh viên theo Mã SV & hiển thị chi tiết bảng điểm các môn đã học.
 6 Sửa thông tin Họ tên, Tuổi của sinh viên.
 7 Xóa sinh viên khỏi hệ thống.
+8. Xếp loại sinh viên.
+9. Thống kê số lượng sinh viên theo xếp loại.
+10. Thống kê số lượng sinh viên theo môn học.
+11. Thống kê số lượng sinh viên theo lớp.
+12. Sắp xếp danh sách sinh viên theo điểm trung bình.
+13. Sắp xếp danh sách sinh viên theo tên.
 0 Thoát ứng dụng.
 ---
 ### Gợi ý các bước cập nhật file này lên GitHub:
