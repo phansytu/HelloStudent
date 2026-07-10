@@ -6,14 +6,18 @@
 ---
 
 ## Cấu Trúc Dự Án & Kiến Trúc Code
-
-Dự án tuân thủ nghiêm ngặt tư duy lập trình hướng đối tượng (OOP) và kiến trúc phân tách trách nhiệm (Separation of Concerns), bao gồm các lớp chính trong namespace `src`:
-
-1. **`MonHoc.cs` (Model):** Định nghĩa cấu trúc môn học gồm tên môn, số tín chỉ, danh sách điểm thành phần (Hệ số 1, Hệ số 2), điểm chuyên cần và điểm thi (Hệ số 3). Tích hợp logic tự động tính điểm tổng kết môn học.
-2. **`Student.cs` (Model):** Định nghĩa thông tin sinh viên (`maSV`, `hoTen`, `tuoi`) và danh sách các môn học sinh viên đó đã đăng ký. Tích hợp hàm tính Điểm trung bình tích lũy hệ số 10 có trọng số theo số tín chỉ.
-3. **`MonHocManager.cs` (Business Logic):** Quản lý danh mục môn học gốc của toàn trường. Xử lý logic thêm môn học mới (chống trùng tên) và hiển thị danh sách môn học.
-4. **`StudentManager.cs` (Business Logic):** Quản lý danh sách sinh viên. Chứa các nghiệp vụ cốt lõi: Thêm sinh viên (chống trùng mã), đăng ký môn & nhập điểm thành phần cho sinh viên (tự động cấu hình số lượng đầu điểm theo số tín chỉ), tìm kiếm, sửa đổi và xóa sinh viên.
-5. **`Program.cs` (Entry Point):** Điểm vào của ứng dụng, thiết lập bảng mã UTF-8 hiển thị tiếng Việt và điều khiển luồng thực thi thông qua hệ thống Menu CLI tương tác (0-7).
+src
+│
+├── Student.cs              // Model sinh viên
+├── Subject.cs              // Model môn học
+│
+├── IStudentService.cs      // Interface quản lý sinh viên
+├── StudentService.cs       // Cài đặt nghiệp vụ quản lý sinh viên
+│
+├── ISubjectService.cs      // Interface quản lý môn học
+├── SubjectService.cs       // Cài đặt nghiệp vụ quản lý môn học
+│
+└── Program.cs              // Điểm khởi chạy chương trình
 
 ---
 
