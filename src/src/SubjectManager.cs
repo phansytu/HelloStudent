@@ -17,7 +17,7 @@ namespace src
         {
             Console.WriteLine("\n--- NHẬP THÔNG TIN MÔN HỌC MỚI CỦA TRƯỜNG ---");
             string tenMon = "";
-            string maMon = "";
+            
 
             // 1. Nhập và kiểm tra trùng lặp tên môn học
             while (true)

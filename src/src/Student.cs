@@ -8,13 +8,17 @@ namespace src
         public string MaSV { get; set; }
         public string HoTen { get; set; }
         public int Tuoi { get; set; }
+        public string Lop { get; set; }
+        public string? XepLoai { get; set; } // Thêm thuộc tính xếp loại
         public List<Subject> DanhSachMonHoc { get; set; }
 
-        public Student(string maSV, string hoTen, int tuoi)
+        public Student(string maSV, string hoTen, int tuoi, string lop, string? xepLoai = null)
         {
             this.MaSV = maSV;
             this.HoTen = hoTen;
             this.Tuoi = tuoi;
+            this.Lop = lop;
+            this.XepLoai = xepLoai;
             this.DanhSachMonHoc = new List<Subject>();
         }
 
@@ -36,5 +40,6 @@ namespace src
 
             return tongSoTinChi == 0 ? 0 : tongDiemNhanTinChi / tongSoTinChi;
         }
+        
     }
 }

@@ -51,8 +51,16 @@ namespace src
                 if (int.TryParse(Console.ReadLine(), out tuoi) && tuoi > 0) break;
                 Console.WriteLine("Tuổi phải là số nguyên dương hợp lệ!");
             }
+            string lop;
+            while (true)
+            {
+                Console.Write("Lớp: ");
+                lop = Console.ReadLine()?.Trim() ?? "";
+                if (!string.IsNullOrEmpty(lop)) break;
+                Console.WriteLine("Lớp không được để trống!");
+            }
 
-            _studentService.AddStudent(new Student(maSV, hoTen, tuoi));
+            _studentService.AddStudent(new Student(maSV, hoTen, tuoi, lop));
             Console.WriteLine("Thêm sinh viên thành công!");
         }
 
@@ -145,6 +153,7 @@ namespace src
             Console.WriteLine($"-> Điểm tổng kết môn đạt: {Math.Round(monCuaSV.TinhDiemTongKetMon(), 2)}");
         }
 
+
         private double NhapDiemHopLe(string thongBao)
         {
             double diem;
@@ -158,6 +167,40 @@ namespace src
                 Console.WriteLine("Điểm số không hợp lệ! Vui lòng nhập số thực trong khoảng từ 0.0 đến 10.0.");
             }
         }
+        // 7. XẾP LOẠI SINH VIÊN
+        public void XepLoaiSinhVien()
+        {
+            Console.Write("\nNhập mã sinh viên cần xếp loại: ");
+            string maSV = Console.ReadLine()?.Trim() ?? "";
+            Student? sv = _studentService.FindByMaSV(maSV);
+
+            if (sv == null)
+            {
+                Console.WriteLine("Không tìm thấy sinh viên để xếp loại!");
+                return;
+            }
+            double dtb = sv.TinhDiemTrungBinh();
+            string xepLoai;
+            if (dtb >= 8.0)
+            {
+                xepLoai = "Giỏi";
+            }
+            else if (dtb >= 6.5)
+            {
+                xepLoai = "Khá";
+            }
+            else if (dtb >= 5.0)
+            {
+                xepLoai = "Trung Bình";
+            }
+            else
+            {
+                xepLoai = "Yếu";
+            }
+
+            _studentService.RankStudent(maSV,xepLoai);
+            Console.WriteLine($"Sinh viên {sv.HoTen} đã được xếp loại: {xepLoai}");
+        }
 
         // 3. HIỂN THỊ THÔNG TIN
         public void HienThiThongTin()
@@ -169,13 +212,15 @@ namespace src
                 Console.WriteLine("Danh sách trống.");
                 return;
             }
-            Console.WriteLine($"| {"Mã SV",-10} | {"Họ và Tên",-25} | {"Tuổi",-5} | {"ĐTB Hệ Số",-10} |");
-            Console.WriteLine(new string('-', 62));
+            Console.WriteLine($"| {"Mã SV",-10} | {"Họ và Tên",-25} | {"Tuổi",-5} | {"ĐTB Hệ Số",-10} | {"Xếp Loại",-10} |");
+            Console.WriteLine(new string('-', 72));
             foreach (var student in danhSach)
             {
                 if (student == null) continue;
                 double dtb = student.TinhDiemTrungBinh();
-                Console.WriteLine($"| {student.MaSV,-10} | {student.HoTen,-25} | {student.Tuoi,-5} | {Math.Round(dtb, 2),-10} |");
+                
+                string xepLoai = student.XepLoai ?? "Chưa xếp loại"; // Nếu chưa xếp loại, hiển thị thông báo
+                Console.WriteLine($"| {student.MaSV,-10} | {student.HoTen,-25} | {student.Tuoi,-5} | {Math.Round(dtb, 2),-10} | {xepLoai,-10} |");
             }
         }
 
@@ -247,5 +292,65 @@ namespace src
             _studentService.DeleteStudent(maSV);
             Console.WriteLine($"Đã xóa thành công sinh viên {sv.HoTen} khỏi hệ thống.");
         }
+        public void ThongKeSinhVienTheoXepLoai()
+        {
+            var thongKe = _studentService.ThongKeSinhVienTheoXepLoai();
+            foreach (var group in thongKe)
+            {
+                Console.WriteLine($"\nXếp loại: {group.Key} - Số lượng sinh viên: {group.Count()}");
+                foreach (var student in group)
+                {
+                    Console.WriteLine($"  + SV: {student.HoTen} - Mã SV: {student.MaSV} - ĐTB: {Math.Round(student.TinhDiemTrungBinh(), 2)}");
+                }
+            }
+            
+        }
+        public void ThongKeSinhVienTheoMonHoc()
+        {
+            var thongKe = _studentService.ThongKeSinhVienTheoMonHoc();
+            Console.WriteLine("\n--- THỐNG KÊ SINH VIÊN THEO MÔN HỌC ---");
+            foreach (var group in thongKe)
+            {
+                Console.WriteLine($"\nMôn học: {group.Key} - Số lượng sinh viên: {group.Count()}");
+                foreach (var student in group)
+                {
+                    Console.WriteLine($"  + SV: {student.HoTen} - Mã SV: {student.MaSV} - ĐTB: {Math.Round(student.TinhDiemTrungBinh(), 2)}");
+                }
+            }
+        }
+        public void ThongKeSinhVienTheoLop()
+        {
+            var thongKe = _studentService.ThongKeSinhVienTheoLop();
+            Console.WriteLine("\n--- THỐNG KÊ SINH VIÊN THEO LỚP ---");
+            foreach (var group in thongKe)
+            {
+                Console.WriteLine($"\nLớp: {group.Key} - Số lượng sinh viên: {group.Count()}");
+                foreach (var student in group)
+                {
+                    Console.WriteLine($"  + SV: {student.HoTen} - Mã SV: {student.MaSV} - ĐTB: {Math.Round(student.TinhDiemTrungBinh(), 2)}");
+                }
+            }
+        }
+                
+        public void SapXepSinhVienTheoDiemTrungBinh()
+        {
+            var danhSachSapXep = _studentService.SapXepSinhVienTheoDiemTrungBinh();
+            Console.WriteLine("\n--- DANH SÁCH SINH VIÊN SẮP XẾP THEO ĐIỂM TRUNG BÌNH ---");
+            foreach (var sv in danhSachSapXep)
+            {
+                Console.WriteLine($"SV: {sv.HoTen} - ĐTB: {Math.Round(sv.TinhDiemTrungBinh(), 2)}");
+            }
+        }
+        public void SapXepSinhVienTheoTen()
+        {
+            var danhSachSapXep = _studentService.SapXepSinhVienTheoTen();
+            Console.WriteLine("\n--- DANH SÁCH SINH VIÊN SẮP XẾP THEO TÊN ---");
+            foreach (var sv in danhSachSapXep)
+            {
+                Console.WriteLine($"SV: {sv.HoTen} - Mã SV: {sv.MaSV}");
+            }
+        }
+    
+     
     }
 }

@@ -31,8 +31,14 @@ namespace src
                 Console.WriteLine("5. Tìm kiếm sinh viên theo Mã");
                 Console.WriteLine("6. Sửa thông tin sinh viên");
                 Console.WriteLine("7. Xóa sinh viên");
+                Console.WriteLine("8. Xếp loại sinh viên");
+                Console.WriteLine("9. Thống kê số lượng sinh viên theo xếp loại");
+                Console.WriteLine("10. Thống kê số lượng sinh viên theo môn học");
+                Console.WriteLine("11. Thống kê số lượng sinh viên theo lớp");
+                Console.WriteLine("12. Sắp xếp danh sách sinh viên theo điểm trung bình");
+                Console.WriteLine("13. Sắp xếp danh sách sinh viên theo tên");
                 Console.WriteLine("0. Thoát chương trình");
-                Console.Write("Chọn chức năng (0-7): ");
+                Console.Write("Chọn chức năng (0-13): ");
 
                 string chon = Console.ReadLine() ?? "";
                 switch (chon)
@@ -44,6 +50,12 @@ namespace src
                     case "5": studentManager.TimKiemSinhVien(); break;
                     case "6": studentManager.SuaSinhVien(); break;
                     case "7": studentManager.XoaSinhVien(); break;
+                    case "8": studentManager.XepLoaiSinhVien(); break;
+                    case "9": studentManager.ThongKeSinhVienTheoXepLoai(); break;
+                    case "10": studentManager.ThongKeSinhVienTheoMonHoc(); break;
+                    case "11": studentManager.ThongKeSinhVienTheoLop(); break;
+                    case "12": studentManager.SapXepSinhVienTheoDiemTrungBinh(); break;
+                    case "13": studentManager.SapXepSinhVienTheoTen(); break;
                     case "0": return;
                     default: Console.WriteLine("Chức năng không hợp lệ, vui lòng chọn lại!"); break;
                 }
